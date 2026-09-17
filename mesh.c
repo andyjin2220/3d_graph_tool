@@ -10,14 +10,15 @@ Mesh init_cube_mesh()
     cube.vertices = (Vertex *)malloc(sizeof(Vertex) * 8);
 
     // 실수(float) 공간에 정육면체 꼭지점 배치 (중심이 0,0,0인 크기 2짜리 큐브)
-    cube.vertices[0] = (Vertex){-1.0f, 1.0f, 1.0f};   // 앞 좌상
-    cube.vertices[1] = (Vertex){1.0f, 1.0f, 1.0f};    // 앞 우상
-    cube.vertices[2] = (Vertex){1.0f, -1.0f, 1.0f};   // 앞 우하
-    cube.vertices[3] = (Vertex){-1.0f, -1.0f, 1.0f};  // 앞 좌하
-    cube.vertices[4] = (Vertex){-1.0f, 1.0f, -1.0f};  // 뒤 좌상
-    cube.vertices[5] = (Vertex){1.0f, 1.0f, -1.0f};   // 뒤 우상
-    cube.vertices[6] = (Vertex){1.0f, -1.0f, -1.0f};  // 뒤 우하
-    cube.vertices[7] = (Vertex){-1.0f, -1.0f, -1.0f}; // 뒤 좌하
+    cube.vertices[0] = (Vertex){-2.0f,  2.0f,  2.0f}; // 앞 좌상
+    cube.vertices[1] = (Vertex){ 2.0f,  2.0f,  2.0f}; // 앞 우상
+    cube.vertices[2] = (Vertex){ 2.0f, -2.0f,  2.0f}; // 앞 우하
+    cube.vertices[3] = (Vertex){-2.0f, -2.0f,  2.0f}; // 앞 좌하
+    cube.vertices[4] = (Vertex){-2.0f,  2.0f, -2.0f}; // 뒤 좌상
+    cube.vertices[5] = (Vertex){ 2.0f,  2.0f, -2.0f}; // 뒤 우상
+    cube.vertices[6] = (Vertex){ 2.0f, -2.0f, -2.0f}; // 뒤 우하
+    cube.vertices[7] = (Vertex){-2.0f, -2.0f, -2.0f}; // 뒤 좌하
+
 
     // 2. 모서리(선) 12개 주소록 채우기
     cube.edge_count = 12;
