@@ -7,7 +7,6 @@
 #include "InputDevice.h"
 #include "matrix.h"
 
-
 void run_terminal()
 {
     Mesh my_cube = init_cube_mesh();
@@ -18,7 +17,7 @@ void run_terminal()
     while (true)
     {
         //======================================
-        // 사용자 입력 데이터
+        // 사용자 입력 데이터 - 사용자 입력 싹다 모으기
         //======================================
         InputState input = {0};
         input.key = getch();
@@ -31,7 +30,7 @@ void run_terminal()
                 input.is_mouse_event = true;
                 input.mouse_x = event.x;
                 input.mouse_y = event.y;
-                input.bstate = event.bstate;
+                input.bstate = event.bstate; // 마우스 왼쪽 오른쪽 휠 이런정보가 여기 저장됨
             }
         }
 
@@ -47,8 +46,9 @@ void run_terminal()
         // 행동 판단 및 연산 - 조건들을 싹 모으는 곳
         //======================================
 
-        handle_keyboard_actions(&my_cube, input.key);
-        handle_mouse_drag_actions(input);
+        handle_keyboard_actions(&my_cube, input.key); // 키보드 행동 조건 모음
+        handle_mouse_drag_actions(input);             // 마우스 드래그 행동 조건 모음
+        handle_mouse_wheel_actions(input);            // 마우스 휠 행동 조건 모음
 
         //======================================
         // 화면 그리기 - 청소 후 순서대로 드로잉
@@ -78,7 +78,7 @@ void run_terminal()
         // 3D 메쉬 투영 및 출력
         draw_projected_mesh(&my_cube);
 
-        refresh(); //갱신
+        refresh(); // 갱신
     }
 }
 

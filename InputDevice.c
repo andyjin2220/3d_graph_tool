@@ -5,6 +5,8 @@
 #include "mesh.h"
 #include "InputDevice.h"
 
+extern float global_distance;
+
 // 키보드 행동 조건 모음
 void handle_keyboard_actions(Mesh *mesh, int key)
 {
@@ -44,5 +46,30 @@ void handle_mouse_drag_actions(InputState input)
     if (input.bstate & REPORT_MOUSE_POSITION)
     {
         drag_end = (pos){input.mouse_y, input.mouse_x};
+    }
+}
+
+// 마우스 휠 행동 조건 모음
+void handle_mouse_wheel_actions(InputState input)
+{
+    if (!input.is_mouse_event)
+        return;
+
+    // 휠을 위로 굴렸을 때 -> 카메라가 물체와 가까워짐 (원근 왜곡 증가)
+    if (input.bstate & BUTTON4_PRESSED)
+    {
+        if (global_distance > 3.0f)
+        {
+            global_distance -= 0.3f;
+        }
+    }
+
+    // 휠 아래로 스크롤 (축소 / distance 증가)
+    if (input.bstate & BUTTON5_PRESSED) // BUTTON5_PRESSED 인식을 못해서 개지랄을 다함
+    { 
+        if (global_distance < 20.0f)
+        {
+            global_distance += 0.3f;
+        }
     }
 }

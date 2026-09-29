@@ -26,5 +26,5 @@ bool is_dragging;
 
 void handle_keyboard_actions(Mesh *mesh, int key);
 void handle_mouse_drag_actions(InputState input);
-
+void handle_mouse_wheel_actions(InputState input);
 #endif

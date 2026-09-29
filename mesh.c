@@ -148,10 +148,13 @@ void draw_vertex(int x1, int y1, int x2, int y2) // 버택스 그리는 함수
     }
 }
 
+float global_distance = 8.5f; // -> 이런식으로 전역 변수로 설정하고 마우스 휠로 조정해서 함수안에 값으로 지정
+
 void draw_projected_mesh(Mesh *mesh) // 구조체로 받은 이유: 실시간으로 수정하고 바로 바로 저장하려고 // 버텍스 수동 선택후 엣지와 페이스 만드는  함수는 따로 작성해야할듯
 {
-    float distance = 3.5f; // 카메라 거리 -> 마우스 휠 스크롤 해서 크기 조절
-    float scale_y = 8.0f;
+    float distance = global_distance; // 카메라 거리 -> 마우스 휠 스크롤 해서 크기 조절
+    float scale_y = 22.0f;
+    // float scale_y = distance * 2.588f; // 이 배율일 때까 가장 안정적으로 보임
     float scale_x = scale_y * 2.2f; // 터미널 특성상 y가 x의 2.2배여서 배율 적용
 
     int term_width, term_height;
