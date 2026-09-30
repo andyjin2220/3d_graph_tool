@@ -149,11 +149,13 @@ void draw_vertex(int x1, int y1, int x2, int y2) // 버택스 그리는 함수
 }
 
 float global_distance = 8.5f; // -> 이런식으로 전역 변수로 설정하고 마우스 휠로 조정해서 함수안에 값으로 지정
+float camera_x = 0.0f;        // 카메라의 실시간 X 위치
+float camera_y = 0.0f;        // 카메라의 실시간 Y 위치
 
 void draw_projected_mesh(Mesh *mesh) // 구조체로 받은 이유: 실시간으로 수정하고 바로 바로 저장하려고 // 버텍스 수동 선택후 엣지와 페이스 만드는  함수는 따로 작성해야할듯
 {
     float distance = global_distance; // 카메라 거리 -> 마우스 휠 스크롤 해서 크기 조절
-    float scale_y = 22.0f;
+    float scale_y = 44.0f;
     // float scale_y = distance * 2.588f; // 이 배율일 때까 가장 안정적으로 보임
     float scale_x = scale_y * 2.2f; // 터미널 특성상 y가 x의 2.2배여서 배율 적용
 
@@ -172,11 +174,17 @@ void draw_projected_mesh(Mesh *mesh) // 구조체로 받은 이유: 실시간으
         Vertex p1 = mesh->vertices[v1];
         Vertex p2 = mesh->vertices[v2];
 
-        // 원근 투영 -> 함수로 바꾸기
-        float proj_x1 = (p1.x / (p1.z + distance)) * scale_x + center_x;
-        float proj_y1 = (p1.y / (p1.z + distance)) * scale_y + center_y;
-        float proj_x2 = (p2.x / (p2.z + distance)) * scale_x + center_x;
-        float proj_y2 = (p2.y / (p2.z + distance)) * scale_y + center_y;
+        // 원근 투영 -> 함수로 바꾸기 (카메라 위치 구현 이전 코드)
+        // float proj_x1 = (p1.x / (p1.z + distance)) * scale_x + center_x;
+        // float proj_y1 = (p1.y / (p1.z + distance)) * scale_y + center_y;
+        // float proj_x2 = (p2.x / (p2.z + distance)) * scale_x + center_x;
+        // float proj_y2 = (p2.y / (p2.z + distance)) * scale_y + center_y;
+
+        // 카메라 위치 구현 이후 코드
+        float proj_x1 = ((p1.x + camera_x) / (distance - p1.z)) * scale_x + center_x;
+        float proj_y1 = ((p1.y + camera_y) / (distance - p1.z)) * scale_y + center_y;
+        float proj_x2 = ((p2.x + camera_x) / (distance - p2.z)) * scale_x + center_x;
+        float proj_y2 = ((p2.y + camera_y) / (distance - p2.z)) * scale_y + center_y;
 
         // 터미널에서 출력해야하기 때문에 소숫점으로 버림 -> 추후에 여러칸을 1픽셀로 치환해서 정밀한 값 나타낼 수 있게 구현해보기
         int screen_x1 = (int)proj_x1;
@@ -190,6 +198,74 @@ void draw_projected_mesh(Mesh *mesh) // 구조체로 받은 이유: 실시간으
         draw_Edge_bresenham(screen_x1, screen_y1, screen_x2, screen_y2, "·"); //"·" 가운뎃점은 문자가 아니라서 다른 형식이 필요
         // 버텍스 출력 함수 호출
         draw_vertex(screen_x1, screen_y1, screen_x2, screen_y2);
+    }
+}
+
+void draw_world_gizmo() // painnig(화면이동)할때 매쉬 이동하고 구별할수 있도록 표시점 생성
+{
+    float distance = global_distance;
+    float scale_y = 44.0f;
+    float scale_x = scale_y * 2.2f;
+
+    int term_width, term_height;
+    getmaxyx(stdscr, term_height, term_width);
+
+    int center_x = term_width / 2;
+    int center_y = term_height / 2;
+
+    // 고정 3D 좌표 세팅 십자 축
+    Vertex center = {0.0f, 0.0f, 0.0f}; // 우주 중심
+    Vertex axis_x = {0.5f, 0.0f, 0.0f}; // X축 (우측)
+    Vertex axis_y = {0.0f, 0.5f, 0.0f}; // Y축 (상단)
+    Vertex axis_z = {0.0f, 0.0f, 0.5f}; // Z축 (앞쪽)
+
+    // // 원근 투영 공식으로 십자가 구현 (이전 코드)
+    // int s_cx = (int)((center.x / (distance - center.z)) * scale_x + center_x);
+    // int s_cy = (int)((center.y / (distance - center.z)) * scale_y + center_y);
+
+    // int s_xx = (int)((axis_x.x / (distance - axis_x.z)) * scale_x + center_x);
+    // int s_xy = (int)((axis_y.y / (distance - axis_y.z)) * scale_y + center_y); // y축 투영 보정
+
+    // int s_yx = (int)((axis_y.x / (distance - axis_y.z)) * scale_x + center_x);
+    // int s_yy = (int)((axis_y.y / (distance - axis_y.z)) * scale_y + center_y);
+
+    // int s_zx = (int)((axis_z.x / (distance - axis_z.z)) * scale_x + center_x);
+    // int s_zy = (int)((axis_z.y / (distance - axis_z.z)) * scale_y + center_y);
+
+
+    // 원근 투영 공식으로 십자가 구현 (이후 코드)
+    int s_cx = (int)(((center.x + camera_x) / (distance - center.z)) * scale_x + center_x);
+    int s_cy = (int)(((center.y + camera_y) / (distance - center.z)) * scale_y + center_y);
+
+    // 2. X축 끝점 투영 (axis_x 의 고유 성분을 정직하게 사용하도록 수정)
+    int s_xx = (int)(((axis_x.x + camera_x) / (distance - axis_x.z)) * scale_x + center_x);
+    int s_xy = (int)(((axis_x.y + camera_y) / (distance - axis_x.z)) * scale_y + center_y); 
+
+    // 3. Y축 끝점 투영
+    int s_yx = (int)(((axis_y.x + camera_x) / (distance - axis_y.z)) * scale_x + center_x);
+    int s_yy = (int)(((axis_y.y + camera_y) / (distance - axis_y.z)) * scale_y + center_y);
+
+    // 4. Z축 끝점 투영
+    int s_zx = (int)(((axis_z.x + camera_x) / (distance - axis_z.z)) * scale_x + center_x);
+    int s_zy = (int)(((axis_z.y + camera_y) / (distance - axis_z.z)) * scale_y + center_y);
+
+    // 브레젠험 알고리즘을 사용해 중심점으로부터 각 축으로 선 긋기
+    // 큐브의 선('·')이나 점('o')과 겹치지 않는 별도의 깔끔한 기호(+, -, | 등)를 사용
+
+    // X축 그리기 (가로 느낌의 '-' 문자 활용)
+    draw_Edge_bresenham(s_cx, s_cy, s_xx, s_cy, "-");
+
+    // Y축 그리기 (세로 느낌의 '|' 문자 활용)
+    // (3D는 Y가 위로 갈수록 증가하지만 터미널은 아래로 증가하므로 부호 정렬 처리된 s_yy 대응)
+    draw_Edge_bresenham(s_cx, s_cy, s_yx, s_yy, "|");
+
+    // Z축 그리기 (공간의 깊이를 뚫고 나오는 대각선 느낌의 '+' 문자 활용)
+    draw_Edge_bresenham(s_cx, s_cy, s_zx, s_zy, "+");
+
+    // 중심점 자리 명시
+    if (s_cx >= 0 && s_cx < term_width && s_cy >= 0 && s_cy < term_height)
+    {
+        mvaddch(s_cy, s_cx, '+');
     }
 }
 

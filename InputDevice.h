@@ -1,6 +1,10 @@
 #ifndef INPUTDEVICE_H
 #define INPUTDEVICE_H
 
+#include "mesh.h"
+
+Vertex unproject_mouse(int mouse_x, int mouse_y, float distance, int term_width, int term_height, float current_z);
+
 typedef struct main
 {
     int y;
@@ -22,9 +26,18 @@ typedef struct
 pos drag_strat;
 pos drag_end;
 
-bool is_dragging;
+
+// 토글도 그냥 구조체로 만들까?
+bool is_dragging;   //드래그 토글
+bool is_wheel_holding;
+bool Toggle_G;  //G 토글
+bool Toggle_P;  //p 토글
 
 void handle_keyboard_actions(Mesh *mesh, int key);
 void handle_mouse_drag_actions(InputState input);
 void handle_mouse_wheel_actions(InputState input);
+void handle_combo_actions(Mesh *mesh,InputState input);
+void grab_mode(Mesh *mesh,InputState input);
+void panning_mode(Mesh *mesh, InputState input);
+
 #endif
